@@ -14,7 +14,8 @@ namespace Serverless_Api
         private readonly Person _user;
         private readonly SnapshotStore _snapshots;
         private readonly IBbqRepository _bbqsStore;
-        private readonly IPersonRepository _peopleStore;
+        private readonly IPersonRepository _peopleStore;        
+
         public RunCreateNewBbq(IBbqRepository eventStore, IPersonRepository peopleStore, SnapshotStore snapshots, Person user)
         {
             _user = user;

@@ -23,23 +23,39 @@ namespace Serverless_Api
         [Function(nameof(RunModerateBbq))]
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Function, "put", Route = "churras/{id}/moderar")] HttpRequestData req, string id)
         {
+
             var moderationRequest = await req.Body<ModerateBbqRequest>();
 
             var bbq = await _repository.GetAsync(id);
 
             bbq.Apply(new BbqStatusUpdated(moderationRequest.GonnaHappen, moderationRequest.TrincaWillPay));
 
+            await _repository.SaveAsync(bbq);
+
             var lookups = await _snapshots.AsQueryable<Lookups>("Lookups").SingleOrDefaultAsync();
 
             foreach (var personId in lookups.PeopleIds)
             {
                 var person = await _persons.GetAsync(personId);
-                var @event = new PersonHasBeenInvitedToBbq(bbq.Id, bbq.Date, bbq.Reason);
-                person.Apply(@event);
+                var hasInvite = person.Invites.Any(e => e.Id == bbq.Id);
+
+                if (!moderationRequest.GonnaHappen)
+                {
+                    if (hasInvite)
+                    {
+                        person.Apply(new InviteWasDeclined { InviteId = bbq.Id, PersonId = person.Id });
+                    }
+                }
+                else
+                {
+                    if (!hasInvite)
+                    {
+                        person.Apply(new PersonHasBeenInvitedToBbq(bbq.Id, bbq.Date, bbq.Reason));
+                    }
+                }
+
                 await _persons.SaveAsync(person);
             }
-
-            await _repository.SaveAsync(bbq);
 
             return await req.CreateResponse(System.Net.HttpStatusCode.OK, bbq.TakeSnapshot());
         }
