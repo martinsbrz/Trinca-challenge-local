@@ -41,19 +41,19 @@ namespace Domain.Entities
 
         public void When(InviteWasAccepted @event)
         {
-            var InviteList = ShopList.ToList();
-            var invite = InviteList.FirstOrDefault(e => e.Id == @event.InviteId && e.PersonId == @event.PersonId);
+            var invite = ShopList.FirstOrDefault(e => e.Id == @event.InviteId && e.PersonId == @event.PersonId);
 
             if (invite == null)
             {
-                InviteList.Add(new BbqShopList
+                var newInvite = new BbqShopList
                 {
                     Id = @event.InviteId,
                     PersonId = @event.PersonId,
                     Meat = @event.IsVeg ? 0 : 300,
                     Vegetables = @event.IsVeg ? 600 : 300,
                     Status = ShopListStatus.Will
-                });
+                };
+                ShopList = ShopList.Concat(new[] { newInvite });
             }
             else
             {
@@ -62,12 +62,11 @@ namespace Domain.Entities
                 invite.Status = ShopListStatus.Will;
             }
 
-            ShopList = InviteList;
-
-            if (ShopList.Where(e => e.Status == ShopListStatus.Will).Count() >= 3 && Status != BbqStatus.Confirmed)
+            if (ShopList.Count(e => e.Status == ShopListStatus.Will) >= 3 && Status != BbqStatus.Confirmed)
             {
                 Status = BbqStatus.Confirmed;
             }
+
         }
 
         public void When(InviteWasDeclined @event)
@@ -78,49 +77,49 @@ namespace Domain.Entities
             //Se ao rejeitar, o número de pessoas confirmadas no churrasco for menor que sete,
             //o churrasco deverá ter seu status atualizado para “Pendente de confirmações”.
 
-            var InviteList = ShopList.ToList();
-            var invite = InviteList.FirstOrDefault(e => e.Id == @event.InviteId && e.PersonId == @event.PersonId);
+            var invite = ShopList.FirstOrDefault(e => e.Id == @event.InviteId && e.PersonId == @event.PersonId);
 
-            if ( invite == null)
+            if (invite == null)
             {
-                InviteList.Add(new BbqShopList
-                {
-                    Id = @event.InviteId,
-                    PersonId = @event.PersonId,
-                    Status = ShopListStatus.WillNot
-                });
+                ShopList = ShopList.Concat(new[] {
+        new BbqShopList
+        {
+            Id = @event.InviteId,
+            PersonId = @event.PersonId,
+            Status = ShopListStatus.WillNot
+        }
+    });
             }
             else
             {
-                invite.Vegetables -= invite.Vegetables;       
-                invite.Meat -= invite.Meat;
+                invite.Vegetables = 0;
+                invite.Meat = 0;
                 invite.Status = ShopListStatus.WillNot;
             }
 
-            ShopList = InviteList;
- 
-            if (ShopList.Where(e => e.Status == ShopListStatus.Will).Count() < 3 && Status != BbqStatus.PendingConfirmations)
+            if (ShopList.Count(e => e.Status == ShopListStatus.Will) < 3 && Status != BbqStatus.PendingConfirmations)
             {
                 Status = BbqStatus.PendingConfirmations;
             }
-                
+
+
         }
-
-
 
         public object TakeSnapshot()
         {
-
-            var a = ShopList.Sum(e => e.Vegetables);
-            var b = ShopList.Sum(e => e.Meat);
-
             return new
             {
                 Id,
                 Date,
                 IsTrincasPaying,
                 Status = Status.ToString(),
-                ShopList = ShopList.GroupBy(e => e.Id).Select(e => new { Vegetables = e.Sum(e => e.Vegetables), Meat = e.Sum(e => e.Meat) })
+                ShopList = ShopList
+                    .GroupBy(e => e.Id)
+                    .Select(e => new
+                    {
+                        Vegetables = $"{e.Sum(e => e.Vegetables) / 1000} kg",
+                        Meat = $"{e.Sum(e => e.Meat) / 1000} kg"
+                    })
             };
         }
     }
