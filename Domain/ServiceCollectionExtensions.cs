@@ -9,6 +9,8 @@ using Domain.Repositories;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using Domain.Interfaces;
+using Domain.Services;
 
 namespace Domain
 {
@@ -56,6 +58,8 @@ namespace Domain
 
             services.AddSingleton<IEventStore<Bbq>>(bbqStore);
             services.AddSingleton<IEventStore<Person>>(peopleStore);
+            services.AddScoped<IBbqService, BbqService>();
+            services.AddScoped<IInvitesService, InvitesService>();
 
             return services;
         }

@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrossCutting", "CrossCutting\CrossCutting.csproj", "{3A0D6D7A-3825-41EC-9FB1-EEFC63B15031}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrossCutting", "CrossCutting\CrossCutting.csproj", "{3A0D6D7A-3825-41EC-9FB1-EEFC63B15031}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serverless-Api", "Serverless-Api\Serverless-Api.csproj", "{9878FFAA-7016-4947-B804-FBBC96927843}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serverless-Api", "Serverless-Api\Serverless-Api.csproj", "{9878FFAA-7016-4947-B804-FBBC96927843}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{1088DA4E-CA40-4415-BF2A-227262D5C469}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{1088DA4E-CA40-4415-BF2A-227262D5C469}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

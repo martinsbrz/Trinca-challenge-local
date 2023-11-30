@@ -14,13 +14,14 @@ namespace Domain.Entities
         {
             Invites = new List<Invite>();
         }
-        public void When(PersonHasBeenCreated @event)
+
+        internal void When(PersonHasBeenCreated @event)
         {
             Id = @event.Id;
             Name = @event.Name;
             IsCoOwner = @event.IsCoOwner;
         }
-        public void When(PersonHasBeenInvitedToBbq @event)
+        internal void When(PersonHasBeenInvitedToBbq @event)
         {
             Invites = Invites.Append(new Invite
             {
@@ -30,20 +31,18 @@ namespace Domain.Entities
                 Status = InviteStatus.Pending
             });
         }
-
-        public void When(InviteWasAccepted @event)
+        internal void When(InviteWasAccepted @event)
         {
             var invite = Invites.FirstOrDefault(x => x.Id == @event.InviteId);
             invite.Status = InviteStatus.Accepted;
         }
-
-        public void When(InviteWasDeclined @event)
+        internal void When(InviteWasDeclined @event)
         {
             var invite = Invites.FirstOrDefault(x => x.Id == @event.InviteId);
-            
-            if (invite == null) 
+
+            if (invite == null)
                 return;
-            
+
             invite.Status = InviteStatus.Declined;
         }
 

@@ -44,7 +44,7 @@ namespace Serverless_Api
 
             var loadedEvents = events?.Select(@event => (IEvent)@event.Body);
 
-            churras.Rehydrate(loadedEvents);
+            //churras.Rehydrate(loadedEvents);
 
             return await req.CreateResponse(HttpStatusCode.Created, churras.TakeSnapshot());
 

@@ -21,7 +21,7 @@ namespace Domain
             Changes = new List<IEvent>();
         }
 
-        public void Rehydrate(IEnumerable<IEvent> events)
+        internal void Rehydrate(IEnumerable<IEvent> events)
         {
             foreach (var @event in events)
             {

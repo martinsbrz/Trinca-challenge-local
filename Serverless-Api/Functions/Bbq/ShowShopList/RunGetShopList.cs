@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using static Serverless_Api.RunAcceptInvite;
 using Eveneum;
 using CrossCutting;
+using Domain.Interfaces;
+using System.Net;
 
 namespace Serverless_Api.Functions.Bbq.ShowShopList
 {
@@ -23,12 +25,15 @@ namespace Serverless_Api.Functions.Bbq.ShowShopList
         public SnapshotStore  _snapshots { get; set; }
         public Person _user { get; set; }
 
-        public RunGetShopList(IBbqRepository bbqRepository, Person user, SnapshotStore snapshots, IPersonRepository personRepository)
+        private readonly IBbqService _bbqService;
+
+        public RunGetShopList(IBbqRepository bbqRepository, Person user, SnapshotStore snapshots, IPersonRepository personRepository, IBbqService bbqService)
         {
             _bbqRepository = bbqRepository;
             _user = user;
             _snapshots = snapshots;
             _personRepository = personRepository;
+            _bbqService = bbqService;
         }
 
         [Function(nameof(RunGetShopList))]
@@ -36,16 +41,9 @@ namespace Serverless_Api.Functions.Bbq.ShowShopList
         {
             var person = await _personRepository.GetAsync(_user.Id);
             var bbq = await _bbqRepository.GetAsync(inviteId);
+            var status = await _bbqService.GetShopList(bbq, person);
 
-            if (bbq == null)
-                return req.CreateResponse(System.Net.HttpStatusCode.NoContent);            
-
-            if (!person.IsCoOwner)
-            {
-                return req.CreateResponse(System.Net.HttpStatusCode.Unauthorized);
-            }
-
-            return await req.CreateResponse(System.Net.HttpStatusCode.OK, bbq.TakeSnapshot());
+            return await req.CreateResponse(status, status == HttpStatusCode.OK ? bbq.TakeSnapshot() : null);
         }
 
     }
